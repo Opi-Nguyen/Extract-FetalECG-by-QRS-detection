@@ -12,14 +12,7 @@ def detect_MQRS(data, len_of_data, win_high, win_low, cutoff_low, cutoff_high, f
     while(True):
         data_in_window = np.asarray(data[win_low:win_high])
         # Prefilter the data with notch filter to remove power supply noise
-        notch_filter_data = fl.Implement_Notch_Filter(
-            sampling_frequency=sampling_rate, 
-            bandwidth=20, 
-            freq_interest=50,
-            ripple=10, 
-            order = 2, 
-            filter_type='butter', 
-            data=data_in_window)
+        notch_filter_data = fl.Implement_Notch_Filter(sampling_rate, 20, 50, 10, 2, 'butter', data_in_window)
         notch_filter_data = fl.Implement_Notch_Filter(sampling_rate, 5, 150, 10, 2, 'butter', notch_filter_data)
         #filter data and square it to increase relative magnitude of MQRS peaks
         data_MQRS = fl.butter_lowpass_filter(notch_filter_data, cutoff_frequency=cutoff_low, sampling_rate=sampling_rate, order=filter_order)
