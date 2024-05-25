@@ -199,7 +199,7 @@ def MQRS_correction(mqrs_set, start_index, data, margin_fp, margin_fn, group, co
                         if(abs(data[i]) > max):
                             max = data[i]
                             max_index = i
-                    mqrs_set1 = mqrs_set1.append({'sample_location': max_index, 'x': 0, 'minimum': group, 'color': color}, ignore_index=True)
+                    mqrs_set1 = mqrs_set1.append({'sample_location': max_index, 'x': 0, 'minimum': group, 'color': color},ignore_index=True)
         current_index = current_index + 1
     mqrs_set1 = mqrs_set1.sort_values(by=['sample_location'])
     return mqrs_set1

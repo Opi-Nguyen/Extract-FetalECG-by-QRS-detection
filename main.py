@@ -10,9 +10,9 @@ import mne
 
 # Converting to a CSV File
 # If you dont have the CSV data, then uncomment this block of code below
-# edf = mne.io.read_raw_edf('ABDFECG/r10.edf')
-# header = ','.join(edf.ch_names)
-# np.savetxt('r10.csv', edf.get_data().T, delimiter=',', header=header)
+edf = mne.io.read_raw_edf('ABDFECG/r10.edf')
+header = ','.join(edf.ch_names)
+np.savetxt('r04.csv', edf.get_data().T, delimiter=',', header=header)
 # Main filter parameters ( using 10 and 15)
 
 fs = 1000
@@ -25,12 +25,12 @@ quality = 30
 
 # -----------------------------------------------------------------
 # Loading data and all 5 columns in a, b, c, d, e arrays
-raw_direct_fecg_data, raw_abdecg_data_c1, _, _, _ = np.loadtxt('r10.csv', delimiter=',', unpack=True).tolist()
+a,b,c,d,e = np.loadtxt('r10.csv', delimiter=',', unpack=True).tolist()
 
-data = np.asarray(raw_abdecg_data_c1)
+data = np.asarray(b)
 
 # Apply the filter to the direct fetal data to remove baseline and high freq noise (For dataset R)
-temp_direct_fetal_data = fl.butter_lowpass_filter(raw_direct_fecg_data, cutoff_frequency=cutoff_low_direct_data, sampling_rate=fs, order=filter_order)
+temp_direct_fetal_data = fl.butter_lowpass_filter(a, cutoff_frequency=cutoff_low_direct_data, sampling_rate=fs, order=filter_order)
 direct_fetal_data = fl.butter_highpass_filter(temp_direct_fetal_data, cutoff_frequency=cutoff_high, sampling_rate=fs, order=filter_order)
 
 # Creating an array for sample locations since some data arrays only have voltage signal
@@ -63,6 +63,7 @@ start_index_subtraction = 0 # this index keeps track of the current MQRS point
 #################################################################################
 MQRS = pf.detect_MQRS(data,length_of_data,window_high,window_low,cutoff_low_MQRS,cutoff_high_MQRS,filter_order,fs,start_index_detection,
                                                                     MQRS,MARGIN_FP,MARGIN_FN,window_width,increment_width)
+
 # Template subtraction up to current end point
 data, end_data, start_index_subtraction = pf.template_subtraction(data,MQRS,start_index_subtraction,CYCLE_WIDTH,P_Q_duration,MECG_CYCLES,PC_num)
 

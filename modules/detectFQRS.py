@@ -1,4 +1,4 @@
-from filterbank import FilterBank
+from modules.filterbank import FilterBank
 import numpy as np
 
 
@@ -12,24 +12,44 @@ class DetectFQRS(object):
         else:
             self.data = data        
     
-    def preprocess(self, data: np.ndarray):
+    def preprocess(
+        self, 
+        data: np.ndarray,
+        cutoff_low: float,
+        cutoff_high: float,
+        filter_order: int,
+        ):
         #notched-pass filter
         notch_filtered_data = self.filter_bank.notch_filter(
             frequency_sampling=self.sample_rate,
             bandwidth=20,
             freq_interest=50,
+            Q=30,
             data=data,
         )
         notch_filtered_data = self.filter_bank.notch_filter(
             frequency_sampling=self.sample_rate,
             bandwidth=5,
             freq_interest=150,
-            data=data,
+            Q=30,
+            data=notch_filtered_data,
+        )
+        #low-pass filter
+        lowpass_filtered_data = self.filter_bank.butterworth_filter(
+            data=notch_filtered_data,
+            filter_type="lowpass",
+            cutoff_freq=cutoff_low,
+            order=filter_order
         )
         #high-pass filter
-        #low-pass filter
-        pass
-    
+        highpass_filtered_data = self.filter_bank.butterworth_filter(
+            data=lowpass_filtered_data,
+            filter_type="highpass",
+            cutoff_freq=cutoff_high,
+            order=filter_order
+        )
+        self.preprocessed_data = highpass_filtered_data
+        return np.square(self.preprocessed_data)
     
     def detect_QRS(self):
         pass

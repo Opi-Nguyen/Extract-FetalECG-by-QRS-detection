@@ -35,23 +35,3 @@ def derivative_filter(data):
     for i in range(2,len(data) - 3):
         derivative[i] = (-2*data[i-2] - data[i-1] + data[i+1] + 2*data[i+2])/10
     return derivative
-
-
-def butter_highpass_filter(data, cutoff_frequency, sampling_rate, order):
-    """
-    Apply a Butterworth high-pass filter to the provided data.
-
-    Parameters:
-    data (array-like): The input signal data.
-    cutoff_frequency (float): The cutoff frequency of the filter in Hz.
-    sampling_rate (float): The sampling rate of the data in Hz.
-    order (int): The order of the filter.
-
-    Returns:
-    filtered_data (array-like): The filtered signal data.
-    """
-    nyquist_frequency = 0.5 * sampling_rate
-    normal_cutoff_frequency = cutoff_frequency / nyquist_frequency
-    b, a = butter(order, normal_cutoff_frequency, btype='highpass', fs=sampling_rate)
-    filtered_data = filtfilt(b, a, data)
-    return filtered_data

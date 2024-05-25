@@ -1,7 +1,0 @@
-FROM nvcr.io/nvidia/tritonserver:23.06-py3
-
-RUN python3 -m pip install --upgrade pip
-RUN pip install torch torchvision
-RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
-RUN pip install requests
-RUN pip install opencv-python
