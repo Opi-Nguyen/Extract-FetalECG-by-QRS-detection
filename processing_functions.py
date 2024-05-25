@@ -4,9 +4,12 @@ import pandas as pd
 import filters as fl
 import svd_analysis as svd
 import plot_data_functions as pld
+from scipy.signal import find_peaks
+
 
 def detect_MQRS(data, len_of_data, win_high, win_low, cutoff_low, cutoff_high, filter_order, sampling_rate, start_index, mqrs, MARGIN_FP, MARGIN_FN, window_width, increment_width):
     st_index = start_index
+    MQRS1 = pd.DataFrame()
     MQRS = mqrs.copy()
     samples = np.arange(0, len_of_data)
     while(True):
@@ -38,7 +41,20 @@ def detect_MQRS(data, len_of_data, win_high, win_low, cutoff_low, cutoff_high, f
         else:
             win_high += increment_width
             win_low += increment_width
-    return MQRS 
+    
+    sigma = 20
+    enhenced_data = data_MQRS
+    window_size = int(0.12 * sigma)  # 120 ms window
+    integrated_ecg = np.convolve(enhenced_data, np.ones(window_size)/window_size, mode='same')
+
+    threshold = np.mean(integrated_ecg) + 0.5 * np.std(integrated_ecg)
+    peaks, _ = find_peaks(integrated_ecg, height=threshold, distance=int(0.5 * sigma))
+    
+    mean_peaks = np.sum(enhenced_data[peaks])/len(peaks)
+    threshold_peaks = mean_peaks/1.5
+    filtered_peaks = peaks[enhenced_data[peaks] > threshold_peaks]
+    MQRS1['sample_location'] = filtered_peaks
+    return data_MQRS, data_MQRS_1, filtered_peaks, MQRS, MQRS1
 
 
 #MQRS template subtraction
@@ -62,9 +78,11 @@ def template_subtraction(data, MQRS, start_index_sub, cycle_width, P_Q_duration,
         end_data = int(MQRS.iloc[start_index,0] - cycle_width*P_Q_duration)
     return data, end_data, current_index
 
+
 #FQRS detection function
 def detect_FQRS(data,length_of_data,window_high,window_low,cutoff_low,cutoff_high,filter_ord,fs,start_index_detection,MARGIN_FP_f,MARGIN_FN_f):
     samples = np.arange(0, length_of_data)
+    FQRS1 = pd.DataFrame()
     notch_filter_data = fl.Implement_Notch_Filter(fs, 20, 50, 10, 2, 'butter', data)
     notch_filter_data = fl.Implement_Notch_Filter(fs, 5, 150, 10, 2, 'butter', notch_filter_data)
     data = fl.butter_lowpass_filter(data, cutoff_frequency=cutoff_low, sampling_rate=fs,
@@ -74,13 +92,26 @@ def detect_FQRS(data,length_of_data,window_high,window_low,cutoff_low,cutoff_hig
     maximums_t_fetal = km.get_max_points(data, window_low)
     minimums_t_fetal = km.get_min_points(data, window_low)
     # pld.plot_max_min(data_FQRS_temp, direct_fetal_data, samples, maximums_t_fetal, minimums_t_fetal, window_high,window_low, 100, "Unfiltered Squared data")
-    # maximums_t_fetal = km.filter_max_points2(data_FQRS, maximums_t_fetal, width_of_filter=100)
+    # maximums_t_fetal = km.filter_max_points2(data, maximums_t_fetal, width_of_filter=100)
 
-    max_min_pairs = km.kmeans_2(minimums_t_fetal, maximums_t_fetal, data, window_low)
-    # seperate the MQRS peaks
-    fqrs_group = [2]
-    FQRS_set = max_min_pairs[max_min_pairs.minimum.isin(fqrs_group)]
-    # MQRS correction
-    FQRS = km.MQRS_correction(FQRS_set, start_index_detection, data, MARGIN_FP_f, MARGIN_FN_f, 3, 'g')
+    # max_min_pairs = km.kmeans_2(minimums_t_fetal, maximums_t_fetal, data, window_low)
+    # # seperate the MQRS peaks
+    # fqrs_group = [2]
+    # FQRS_set = max_min_pairs[max_min_pairs.minimum.isin(fqrs_group)]
+    # # MQRS correction
 
+    sigma = 40
+    enhenced_data = data**2
+    window_size = int(0.12 * sigma)  # 120 ms window
+    integrated_ecg = np.convolve(enhenced_data, np.ones(window_size)/window_size, mode='same')
+
+    threshold = np.mean(integrated_ecg) + 0.5 * np.std(integrated_ecg)
+    peaks, _ = find_peaks(integrated_ecg, height=threshold, distance=int(0.5 * sigma))
+    
+    mean_peaks = np.sum(enhenced_data[peaks])/len(peaks)
+    threshold_peaks = mean_peaks*1.5
+    FQRS = peaks[enhenced_data[peaks] < threshold_peaks]
+    FQRS1['sample_location'] = FQRS
+    FQRSx = km.MQRS_correction(FQRS1, start_index_detection, data, MARGIN_FP_f, MARGIN_FN_f, 3, 'g')
+    print(FQRSx['sample_location'])
     return FQRS, data
