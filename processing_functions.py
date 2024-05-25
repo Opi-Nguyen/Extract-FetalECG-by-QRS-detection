@@ -24,7 +24,7 @@ def detect_MQRS(data, len_of_data, win_high, win_low, cutoff_low, cutoff_high, f
         # Apply the K means algorithm with k = 2 to detect the MQRS peaks
         maximums_sample_location = km.get_max_points(data_MQRS, win_low)
         minimums_sample_location = km.get_min_points(data_MQRS, win_low)
-        maximums_sample_location = km.filter_max_points(data_MQRS,maximums_sample_location,width_of_filter=75)
+        maximums_sample_location = km.filter_max_points(data_MQRS,maximums_sample_location,width_of_filter=10000)
         max_min_pairs = km.kmeans_2(minimums_sample_location, maximums_sample_location, data_MQRS, win_low)
         # seperate the MQRS peaks
         mqrs_group = [2]
@@ -68,6 +68,7 @@ def template_subtraction(data, MQRS, start_index_sub, cycle_width, P_Q_duration,
         # get the array of data for performing PCA algorithm
         PCA_array, new_index = km.get_PCA_array(MQRS, data, start_index, P_Q_duration, mecg_cycles, cycle_width)
         # SVD analysis, returns the U, sigma and VT array (VT is V transpose)
+        # print(PCA_array[0], type(PCA_array), len(PCA_array))
         U, sigma, VT = svd.get_SVD_arrays(PCA_array)
         # reconstruct the n principal components as an array
         test_mecg_array = svd.get_MQRS_array(U, sigma, VT, pc_num)

@@ -11,16 +11,18 @@ def get_max_points(data, window_start):
     return maximums_t
 
 # This function will filter the max points taking the largest magnitude in a window
-def filter_max_points(data, maximums,width_of_filter):
+def filter_max_points(data, maximums, width_of_filter):
+    print(maximums)
     i = 0
-    while(i < len(maximums[0]) -1):
+    while i < len(maximums[0]) - 1:
         if maximums[0][i+1] - maximums[0][i] <= width_of_filter:
             if data[maximums[0][i]] >= data[maximums[0][i+1]]:
-                maximums = np.delete(maximums,[i+1],1)
+                maximums = np.delete(maximums, [i+1], 1)
+                print("del")
             else:
-                maximums = np.delete(maximums,[i],1)
+                maximums = np.delete(maximums, [i], 1)
                 continue
-        i = i + 1
+        i += 1
     return maximums
 
 

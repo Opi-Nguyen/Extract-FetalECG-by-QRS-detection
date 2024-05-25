@@ -67,7 +67,22 @@ preprocessed_FECG = FQRS_detector.preprocess_FECG(data=temp_data, cutoff_low=100
 
 time_len = len(crop_data)
 t = np.linspace(0, time_len/1000, int(time_len), endpoint=False)
-print(len(t))
+
+
+trim = [0,10000]
+
+time = t[trim[0]: trim[1]]
+
+#1
+origin_data  = crop_data[trim[0]: trim[1]]
+#2
+preprocessed_QRS = preprocessed_MECG[trim[0]: trim[1]]
+Meternal_QRS = Meternal_QRS[(Meternal_QRS >= trim[0]) & (Meternal_QRS <= trim[1])]
+#3
+# print(reconstructed_mecg_array)
+# reconstructed_mecg = reconstructed_mecg_array[trim[0]: trim[1]]
+#4
+subtracted_data = preprocessed_FECG[trim[0]: trim[1]]
 
 
 trim = [0,10000]

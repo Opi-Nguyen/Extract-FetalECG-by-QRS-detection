@@ -152,7 +152,7 @@ t = np.linspace(0, time_len/1000, int(time_len), endpoint=False)
 
 
 a = 0
-trim = [a+0,a+7000]
+trim = [a+0,a+10000]
 
 time = t[trim[0]: trim[1]]
 
