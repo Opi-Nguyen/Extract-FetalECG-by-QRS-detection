@@ -27,7 +27,7 @@ def detect_MQRS(data, len_of_data, win_high, win_low, cutoff_low, cutoff_high, f
         mqrs_group = [2]
         MQRS_set = max_min_pairs[max_min_pairs.minimum.isin(mqrs_group)]
         MQRS = pd.concat([MQRS, MQRS_set]).drop_duplicates().reset_index(drop=True)
-        # MQRS correction
+        # MQRS correction 
         MQRS = km.MQRS_correction(MQRS, st_index, data_MQRS, MARGIN_FP, MARGIN_FN, 3, 'g')
         st_index = (MQRS.shape[0] - MQRS_set.shape[0])
         if(win_high == len_of_data):

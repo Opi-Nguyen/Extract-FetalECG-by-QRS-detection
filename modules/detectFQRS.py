@@ -2,6 +2,8 @@ from modules.filterbank import FilterBank
 import numpy as np
 from scipy.signal import argrelextrema
 from scipy.signal import find_peaks
+from scipy.linalg import svd
+
 
 
 class DetectFQRS(object):
@@ -95,6 +97,7 @@ class DetectFQRS(object):
             current_idx += 1
 
         return QRS_array, new_idx
+<<<<<<< HEAD
     def SVD_ananlysis(
         self,
         data: np.array,
@@ -124,6 +127,16 @@ class DetectFQRS(object):
             current_idx += 1
 
         return QRS_array, new_idx
+=======
+    
+    
+    def SVD_ananlysis(
+        self,
+        PCA_array: np.array,
+        ):
+        U, sigma, VT = svd(PCA_array)
+        return U, sigma, VT
+>>>>>>> 2908326 (add data, fix storage csv path)
     
     def recontruct_MECG(self):
         pass

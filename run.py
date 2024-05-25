@@ -12,10 +12,35 @@ crop_data = data[5000:55000]
 frequency_sampling = 1000
 FQRS_detector = DetectFQRS(frequency_sampling=frequency_sampling, data=crop_data)
 
-#1 preprocess``
+#1 preprocess
 preprocessed_data = FQRS_detector.preprocess(data=crop_data, cutoff_low=15, cutoff_high=2, filter_order=2)
+
 #2 detectQRS
-max_local_extremas= FQRS_detector.detect_QRS(data=preprocessed_data, fs=200)
+Meternal_QRS = FQRS_detector.detect_QRS(data=preprocessed_data, fs=200)
+
+##MQRS template subtraction
+cycle_width = 700
+P_Q_duration = 0.25
+start_idx = 0
+while len(Meternal_QRS)-start_idx > 20:
+    current_Meternal_QRS = Meternal_QRS[start_idx]
+    if (current_Meternal_QRS < cycle_width * P_Q_duration)
+        start_idx +=1
+    
+    
+    
+#3 PCA
+PCA_QRS_array, new_idx = FQRS_detector.PCA_ananlysis
+
+#4 SVD n Cycle
+
+#MECG 
+
+
+
+
+
+
 
 
 

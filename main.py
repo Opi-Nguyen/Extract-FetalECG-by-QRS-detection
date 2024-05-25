@@ -61,13 +61,27 @@ start_index_subtraction = 0 # this index keeps track of the current MQRS point
 
 #MQRS detection
 #################################################################################
-MQRS = pf.detect_MQRS(data_raw,length_of_data,window_high,window_low,cutoff_low_MQRS,cutoff_high_MQRS,filter_order,fs,start_index_detection,
-                                                                    MQRS,MARGIN_FP,MARGIN_FN,window_width,increment_width)
+MQRS = pf.detect_MQRS(
+    data_raw,
+    length_of_data,
+    window_high,
+    window_low,
+    cutoff_low_MQRS,
+    cutoff_high_MQRS,
+    filter_order,
+    fs,
+    start_index_detection,
+    MQRS,
+    MARGIN_FP,
+    MARGIN_FN,
+    window_width,
+    increment_width
+    )
 
 
 print(MQRS['sample_location'])
 # Template subtraction up to current end point
-data, end_data, start_index_subtraction = pf.template_subtraction(data_raw,MQRS,start_index_subtraction,CYCLE_WIDTH,P_Q_duration,MECG_CYCLES,   )
+data, end_data, start_index_subtraction = pf.template_subtraction(data_raw,MQRS,start_index_subtraction,CYCLE_WIDTH,P_Q_duration,MECG_CYCLES, PC_num)
 
 ############################################################################################################################################
 # # from here is the code for detecting the FQRS peaks from the FECG residual
