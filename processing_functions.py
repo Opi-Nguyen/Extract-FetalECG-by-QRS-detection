@@ -38,7 +38,7 @@ def detect_MQRS(data, len_of_data, win_high, win_low, cutoff_low, cutoff_high, f
         else:
             win_high += increment_width
             win_low += increment_width
-    return MQRS
+    return MQRS 
 
 
 #MQRS template subtraction

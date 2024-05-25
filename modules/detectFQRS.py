@@ -1,5 +1,7 @@
 from modules.filterbank import FilterBank
 import numpy as np
+from scipy.signal import argrelextrema
+from scipy.signal import find_peaks
 
 
 class DetectFQRS(object):
@@ -49,16 +51,96 @@ class DetectFQRS(object):
             order=filter_order
         )
         self.preprocessed_data = highpass_filtered_data
-        return np.square(self.preprocessed_data)
+        return np.square(self.preprocessed_data)*(1e+10)
     
-    def detect_QRS(self):
-        pass
+    def detect_QRS(self, data: np.ndarray, fs: float):
+        window_size = int(0.12 * fs)  # 120 ms window
+        integrated_ecg = np.convolve(data, np.ones(window_size)/window_size, mode='same')
+
+        threshold = np.mean(integrated_ecg) + 0.5 * np.std(integrated_ecg)
+        peaks, _ = find_peaks(integrated_ecg, height=threshold, distance=int(0.5 * fs))
+        
+        mean_peaks = np.sum(data[peaks])/len(peaks)
+        threshold_peaks = mean_peaks/2.5
+        filtered_peaks = peaks[data[peaks] > threshold_peaks]
+
+        return filtered_peaks
     
-    def analyze_PCA(self):
-        pass
+    def PCA_ananlysis(
+        self,
+        data: np.array,
+        QRS_data: list,
+        start_index: any,
+        P_Q_duration: any,
+        total_cycles: any,
+        cycle_width: any
+        ):
+        
+        new_idx = start_index
+        current_idx = start_index
+        current_QRS = QRS_data[current_idx]
+        
+        if current_QRS < cycle_width * P_Q_duration:
+            current_idx += 1
+            new_idx = current_idx
+        
+        QRS_array = [[0 for _ in range(cycle_width)] for _ in range(total_cycles)]
+        
+        for i in range(total_cycles):
+            current_QRS = QRS_data[current_idx]
+            data_index = int(current_QRS - (cycle_width * P_Q_duration))
+            for j in range(cycle_width):
+                QRS_array[i][j] = data[data_index]
+                data_index += 1
+            current_idx += 1
+
+        return QRS_array, new_idx
+    def SVD_ananlysis(
+        self,
+        data: np.array,
+        QRS_data: list,
+        start_index: any,
+        P_Q_duration: any,
+        total_cycles: any,
+        cycle_width: any
+        ):
+        
+        new_idx = start_index
+        current_idx = start_index
+        current_QRS = QRS_data[current_idx]
+        
+        if current_QRS < cycle_width * P_Q_duration:
+            current_idx += 1
+            new_idx = current_idx
+        
+        QRS_array = [[0 for _ in range(cycle_width)] for _ in range(total_cycles)]
+        
+        for i in range(total_cycles):
+            current_QRS = QRS_data[current_idx]
+            data_index = int(current_QRS - (cycle_width * P_Q_duration))
+            for j in range(cycle_width):
+                QRS_array[i][j] = data[data_index]
+                data_index += 1
+            current_idx += 1
+
+        return QRS_array, new_idx
     
     def recontruct_MECG(self):
         pass
     
     def subtract_template(self):
         pass
+    
+    def filter_local_extrema(self, data: np.ndarray, local_extremas: any, acceptance_width: float):
+        i = 0
+        print(local_extremas)
+        while (i < len(local_extremas[0]) - 1):
+            if (local_extremas[0][i+1] - local_extremas[0][i]) <= acceptance_width:
+                if data[local_extremas[0][i+1]] <= data[local_extremas[0][i]]:
+                    local_extremas = np.delete(local_extremas, [i+1], 1)
+                else:
+                    local_extremas = np.delete(local_extremas, [i], 1)
+            i +=1
+        return local_extremas
+    
+    
